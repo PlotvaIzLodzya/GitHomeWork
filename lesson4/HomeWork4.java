@@ -228,7 +228,7 @@ public class HomeWork4 {
     public static void createObstacles(){
         for(int i = 0; i< obstacleAmount; i++) {
             obstaclePosX = randomRange(1,mapHeight-2);
-            obstaclePosY = randomRange(0,mapWidth-1);
+            obstaclePosY = randomRange(1,mapWidth-2);
             map[obstaclePosX][obstaclePosY] = obstacle;
         }
     }
