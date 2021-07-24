@@ -1,222 +1,257 @@
-package ConsoleApp;
+package HomeWorkApp4;
 
 import java.util.Random;
 import java.util.Scanner;
 
-/**
- * Created by Aleksandr Gladkov [Anticisco]
- * Date: 22.07.2021
- */
-
-public class ConsoleApplication {
-
+public class HomeWork4 {
     public static Random random = new Random();
     public static Scanner scanner = new Scanner(System.in);
 
-    public static int countGameLevel = 1;
-
-    public static char player = '@';
+    public static char player = '♝';
     public static int playerPosX;
     public static int playerPosY;
-    public static int playerHP = 100;
-    public static int scorePlayerSteps = 0;
-    public static boolean configurationRandomFirstPos = false;
+    public static int playerHP =15;
+    public static int playerAttack = 10;
+    public static int enemySlain = 0;
+
+    public static char clearedPath = 'X';
+
+    public static char[][] map;
+    public static char[][] enemyMap;
+    public static int mapWidth = 20;
+    public static int mapHeight = 10;
+
+    public static char obstacle = '█';
+    public static int obstacleAmount =30;
+    public static int obstaclePosX;
+    public static int obstaclePosY;
 
     public static final int moveUp = 1;
     public static final int moveDown = 2;
-    public static final int moveLeft = 3;
-    public static final int moveRight = 4;
+    public static final int moveLeft = 4;
+    public static final int moveRight = 3;
 
-    public static char emptyCell = '_';
-    public static char readyCell = '*';
+    public static char enemy = '☼';
+    public static int enemyPosX;
+    public static int enemyPosY;
+    public static int enemyAttack;
+    public static int minEnemyAttack;
+    public static int maxEnemyAttack;
+    public static int enemyAmount = 25;
 
-    public static char enemy = 'X';
-    public static int enemyDamage;
-    public static int enemyDamageMin = 30;
-    public static int enemyDamageMax = 50;
+    public static char heal = '♡';
+    public static int healAmount = 2;
+    public static char plusAttack ='✚';
+    public static int plusAttackAmount = 1;
 
-    public static char[][] map;
-    public static char[][] invisibleMap;
-    public static int mapWidth;
-    public static int mapHeight;
-    public static int mapSizeMin = 2;
-    public static int mapSizeMax = 4;
+    public static int lvlCounter =1;
+
+    public static char exit = '谷';
+    public static int exitPosX;
+    public static int exitPosY;
+
+
+
 
     public static void main(String[] args) {
-
-        while (isAlivePlayer()) {
-            System.out.println(">>> Console Game === Start! Level " + countGameLevel + " === <<<");
+// Играем пока персонаж не умрет
+        while(!isPlayerDead()) {
+            System.out.println("Level = " + lvlCounter);
             gameCycle();
-            countGameLevel++;
+            lvlCounter++;
         }
-        scanner.close();
-        System.out.println("Console Game === Game over! Count Level: " + countGameLevel + ". Count steps: " + scorePlayerSteps + " ===");
-
+            scanner.close();
+            System.out.println("Game over. Level count = " + lvlCounter + ". " + "Enemy slain = " + enemySlain);
     }
 
-    public static void gameCycle() {
+//Игровой цикл
+    public static void gameCycle(){
+        System.out.println(player + "- It's you. " + exit + " - It's door to next level. " + heal + " - Healing buff. " + plusAttack + " - Atack buff.");
         initMap();
-        createPlayer(configurationRandomFirstPos);
+        createObstacles();
         createEnemies();
+        createPowerUps();
+        createPlayer();
+        createExit();
 
+
+//Играем на уровне пока персонаж жив или пока не дошел до перехода на следующий уровень
         while(true) {
-            printMap();
-            System.out.println("[Player info] > Step: " + scorePlayerSteps + ". Health: " + playerHP);
+
+            printMap(map);
             movePlayer();
 
-            if (isFullMap()) {
-                System.out.println("Map is Full. Welcome to next level");
+            if(isExitReached()){
+                System.out.println("================================");
+                System.out.println("Congratulations. Level completed!");
                 break;
             }
 
-            if (!isAlivePlayer()) {
-                System.out.println("Player is dead");
-                printMap();
+            if(isPlayerDead()){
+                System.out.println("YOU ARE DEAD");
                 break;
             }
         }
+
     }
 
-    public static void initMap() {
-        mapWidth = randomRange(mapSizeMin, mapSizeMax);
-        mapHeight = randomRange(mapSizeMin, mapSizeMax);
+
+//Создаем карту, отрисовываем нижнюю и верхнюю границы
+    public static void initMap(){
         map = new char[mapHeight][mapWidth];
-        invisibleMap = new char[mapHeight][mapWidth];
-
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
-                map[y][x] = emptyCell;
+        enemyMap = new char [mapHeight][mapWidth];
+        for(int y =0; y < mapHeight; y++){
+            for(int x = 0; x < mapWidth; x++) {
+                if(y == 0 || y == mapHeight - 1) {
+                    map[y][x] = obstacle;
+                } else {
+                    map[y][x] = ' ';
+                }
             }
         }
-
-        System.out.println("Create map > Size " + mapWidth + "x" + mapHeight + " <");
     }
 
-    public static void createPlayer(boolean isRandom) {
-        if (isRandom) {
-            playerPosX = randomRange(0, mapWidth - 1);
-            playerPosY = randomRange(0, mapHeight - 1);
-        } else {
-            playerPosX = mapWidth / 2;
-            playerPosY = mapHeight / 2;
+//Рисуем карту
+    public static void printMap(char[][] map) {
+        for (int i = 0; i < map.length; i++) {
+            System.out.println();
+            for (int j = 0; j < map[i].length; j++)
+                System.out.print(map[i][j] + " ");
         }
-        map[playerPosY][playerPosX] = player;
+        System.out.println();
     }
 
-    public static void createEnemies() {
-        enemyDamage = randomRange(enemyDamageMin, enemyDamageMax);
+//Размещаем персонажа
+    public static void createPlayer(){
+        playerPosX= 1;
+        playerPosY = 0;
+        map[playerPosX][playerPosY] = player;
+    }
 
-        int x;
-        int y;
 
-        int countEnemies = (mapWidth + mapHeight) / 4;
+//Движение персонажа
+    public static void movePlayer(){
+    int currentX = playerPosX;
+    int currentY = playerPosY;
+    int playerDestination;
 
-        for (int i = 0; i < countEnemies; i++) {
+    do {
 
-            do {
-                x = random.nextInt(mapWidth);
-                y = random.nextInt(mapHeight);
-            } while (x == playerPosX && y == playerPosY);
-
-            invisibleMap[y][x] = enemy;
+        System.out.println(" Up >" + " " + moveUp + " down >" + " " + moveDown + " Left >" + " " + moveLeft + " Right >" + " " + moveRight );
+        System.out.println("Attack = " + playerAttack + ". " + " HP = " + playerHP + ". " + "Slain enemies = " + enemySlain + ". " + "Level = " + lvlCounter);
+        System.out.print("Enter your move : ");
+        playerDestination = scanner.nextInt();
+        switch (playerDestination) {
+            case moveUp:
+                playerPosX -= 1;
+                break;
+            case moveDown:
+                playerPosX += 1;
+                break;
+            case moveLeft:
+                playerPosY -= 1;
+                break;
+            case moveRight:
+                playerPosY += 1;
+                break;
         }
-        System.out.println("Enemies count: " + countEnemies + ". Enemy damage: " + enemyDamage);
+    }while(!isValidNextStep(currentX,currentY,playerPosX, playerPosY));
+        playerAction(currentY,currentX,playerPosX,playerPosY);
     }
 
-    public static void movePlayer() {
-        int currentX = playerPosX;
-        int currentY = playerPosY;
-        int playerDestination;
-
-        do {
-
-            System.out.print("Enter your move (UP = " + moveUp + ", DOWN = " + moveDown +
-                    ", LEFT = " + moveLeft + ", RIGHT = " + moveRight + ") ->>> ");
-            playerDestination = scanner.nextInt();
-
-            switch (playerDestination) {
-                case moveUp:
-                    playerPosY -= 1;
-                    break;
-                case moveDown:
-                    playerPosY += 1;
-                    break;
-                case moveLeft:
-                    playerPosX -= 1;
-                    break;
-                case moveRight:
-                    playerPosX += 1;
-                    break;
-            }
-
-        } while (!isValidNextMove(currentY, currentX, playerPosY, playerPosX));
-
-        playerNextMoveAction(currentY, currentX, playerPosY, playerPosX);
-        ++scorePlayerSteps;
-    }
-
-    public static boolean isFullMap() {
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
-                if (map[y][x] == emptyCell) return false;
-            }
-        }
-        return true;
-    }
-
-    public static void playerNextMoveAction(int currentY, int currentX, int nextY, int nextX) {
-        if (invisibleMap[nextY][nextX] == enemy) {
-            playerHP -= enemyDamage;
-            System.out.println("Enemy give damage > " + enemyDamage + ". Player HP = " + playerHP);
-        }
-
-        map[currentY][currentX] = readyCell;
-        map[playerPosY][playerPosX] = player;
-        invisibleMap[playerPosY][playerPosX] = readyCell;
-
-        if (randomActionBuff()) {
-            healPlayer(randomRange(10, 20));
-        }
-    }
-
-    public static boolean isValidNextMove(int currentY, int currentX, int nextY, int nextX) {
-        if (nextY >= 0 && nextY < mapHeight && nextX >= 0 && nextX < mapWidth) {
-            System.out.println("Player move to [" + (nextX + 1) + ":" + (nextY + 1) + "] success");
+//Проверка можно не является ли следующий ход препятсвием
+    public static boolean isValidNextStep(int currentX, int currentY, int nextX, int nextY){
+        if(map[nextX][nextY] != obstacle){
             return true;
-        } else {
-            playerPosY = currentY;
+        }else{
+            System.out.println("You can't go there");
             playerPosX = currentX;
-            System.out.println("Invalid move. Please try again!");
+            playerPosY = currentY;
             return false;
         }
     }
 
-    public static boolean randomActionBuff() {
-        return random.nextInt(100) < 10;
-    }
-
-    public static void healPlayer(int value) {
-        playerHP += value;
-        System.out.println("Player heal on " + value + ". Player HP = " + playerHP);
-    }
-
-
-    public static void printMap() {
-        System.out.println("===== ACTUAL MAP =====");
-        for (int y = 0; y < mapHeight; y++) {
-            for (int x = 0; x < mapWidth; x++) {
-                System.out.print(map[y][x] + "|");
-            }
-            System.out.println();
+//Если встречаем врага - сражение, если бафф, то получаем бафф.
+    public static void playerAction(int currentY, int currentX, int nextX, int nextY){
+        if(enemyMap[nextX][nextY] == enemy){
+            fight();
+        } else {
+            poweringUp(nextX, nextY);
         }
-        System.out.println("======================");
+        map[playerPosX][playerPosY] = player;
+        map[currentX][currentY] = clearedPath;
     }
 
-    public static boolean isAlivePlayer() {
-        return playerHP > 0;
+//Если наступили на сердечко, то получаем лечение, если на "+" то + к атаке
+    public static void poweringUp(int nextX, int nextY){
+       if(map[nextX][nextY] == heal){
+           playerHP+=healAmount;
+        } else if(map[nextX][nextY] == plusAttack)
+           playerAttack+=plusAttackAmount;
     }
 
-    public static int randomRange(int min, int max) {
-        return random.nextInt(max - min + 1) + min;
+//Сражение - если атака больше атаки противника - побеждаем, получаем +1 к атаке,если атака меньше то получаем урон
+    public static void fight(){
+        minEnemyAttack = lvlCounter + 5 + playerAttack/4;
+        maxEnemyAttack = lvlCounter + 10 + playerAttack/2;
+        enemyAttack = randomRange(minEnemyAttack, maxEnemyAttack);
+        if(playerAttack>=enemyAttack){
+            playerAttack+=1;
+            enemySlain += 1;
+        } else {
+            playerHP -= enemyAttack-playerAttack;
+        }
+
+    }
+
+
+//создаем врагов
+    public static void createEnemies(){
+        System.out.println("There are: " + enemyAmount + " enemies");
+        for(int i =0; i < enemyAmount; i++){
+            do {
+                enemyPosX = randomRange(1, mapHeight - 2);
+                enemyPosY = randomRange(0, mapWidth - 1);
+                enemyMap[enemyPosX][enemyPosY] = enemy;
+            }while(enemyPosX == obstaclePosX && enemyPosY == obstaclePosY);
+        }
+    }
+
+//Создаем баффы
+    public static void createPowerUps(){
+    map[1][mapWidth-1] = plusAttack;
+    healAmount +=lvlCounter/2;
+    map[mapHeight-2][0] = heal;
+    }
+
+//Создаем препятсвия
+    public static void createObstacles(){
+        for(int i = 0; i< obstacleAmount; i++) {
+            obstaclePosX = randomRange(1,mapHeight-2);
+            obstaclePosY = randomRange(0,mapWidth-1);
+            map[obstaclePosX][obstaclePosY] = obstacle;
+        }
+    }
+
+//Создаем выход
+    public static void createExit(){
+        exitPosX = mapHeight-2;
+        exitPosY = mapWidth-1;
+        map[exitPosX][exitPosY] = exit;
+    }
+
+//Проверяем мертв ли персонаж
+    public static boolean isPlayerDead(){
+        return playerHP<=0;
+    }
+
+//Проверяем дошел ли персонаж до выхода
+    public static boolean isExitReached(){
+        return map[mapHeight-2][mapWidth-1] != exit;
+    }
+
+//Рандомим
+    public static int randomRange(int min, int max){
+        return random.nextInt(max-min +1) + min;
     }
 }
