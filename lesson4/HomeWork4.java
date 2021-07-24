@@ -161,7 +161,7 @@ public class HomeWork4 {
 
 //Проверка можно не является ли следующий ход препятсвием
     public static boolean isValidNextStep(int currentX, int currentY, int nextX, int nextY){
-        if(map[nextX][nextY] != obstacle){
+        if(nextY >= 0 && nextY < mapWidth  && map[nextX][nextY] != obstacle){
             return true;
         }else{
             System.out.println("You can't go there");
