@@ -41,8 +41,12 @@ public class HomeWork4 {
 
     public static char heal = '♡';
     public static int healAmount = 2;
+    public static int healPosX;
+    public static int healPosY;
     public static char plusAttack ='✚';
     public static int plusAttackAmount = 1;
+    public static int plusAttackPosX;
+    public static int plusAttackPosY;
 
     public static int lvlCounter =1;
 
@@ -172,23 +176,28 @@ public class HomeWork4 {
     }
 
 //Если встречаем врага - сражение, если бафф, то получаем бафф.
-    public static void playerAction(int currentY, int currentX, int nextX, int nextY){
-        if(enemyMap[nextX][nextY] == enemy){
+    public static void playerAction(int currentY, int currentX, int nextX, int nextY) {
+        if (enemyMap[nextX][nextY] == enemy) {
             fight();
-        } else {
-            poweringUp(nextX, nextY);
         }
-        map[playerPosX][playerPosY] = player;
-        map[currentX][currentY] = clearedPath;
-    }
+        if (map[nextX][nextY] == heal) {
+            playerHP += healAmount;
+        }
+        if (map[nextX][nextY] == plusAttack) {
+            playerAttack += plusAttackAmount;
+        }
+            map[playerPosX][playerPosY] = player;
+            map[currentX][currentY] = clearedPath;
+        }
 
 //Если наступили на сердечко, то получаем лечение, если на "+" то + к атаке
-    public static void poweringUp(int nextX, int nextY){
-       if(map[nextX][nextY] == heal){
-           playerHP+=healAmount;
-        } else if(map[nextX][nextY] == plusAttack)
-           playerAttack+=plusAttackAmount;
-    }
+//     Вынес в playerAction
+//     public static void poweringUp(int nextX, int nextY){
+//        if(map[nextX][nextY] == heal){
+//            playerHP+=healAmount;
+//         } else if(map[nextX][nextY] == plusAttack)
+//            playerAttack+=plusAttackAmount;
+//     }
 
 //Сражение - если атака больше атаки противника - побеждаем, получаем +1 к атаке,если атака меньше то получаем урон
     public static void fight(){
@@ -219,9 +228,13 @@ public class HomeWork4 {
 
 //Создаем баффы
     public static void createPowerUps(){
-    map[1][mapWidth-1] = plusAttack;
-    healAmount +=lvlCounter/2;
-    map[mapHeight-2][0] = heal;
+    plusAttackPosX = 1;
+    plusAttackPosY = mapWidth-1;
+    healPosX = mapHeight-2;
+    healPosY = 0;
+        map[plusAttackPosX][plusAttackPosY] = plusAttack;
+        healAmount +=lvlCounter/2;
+        map[healPosX][healPosY] = heal;
     }
 
 //Создаем препятсвия
@@ -247,7 +260,7 @@ public class HomeWork4 {
 
 //Проверяем дошел ли персонаж до выхода
     public static boolean isExitReached(){
-        return map[mapHeight-2][mapWidth-1] != exit;
+        return map[exitPosX][exitPosY] != exit;
     }
 
 //Рандомим
