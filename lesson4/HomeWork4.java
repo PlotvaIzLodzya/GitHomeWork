@@ -226,14 +226,15 @@ public class HomeWork4 {
         }
     }
 
-//Создаем баффы
+//Создаем баффы, располгаем их в радномное место в левой нижней и правой верхней четверти карты
     public static void createPowerUps(){
-    plusAttackPosX = 1;
-    plusAttackPosY = mapWidth-1;
-    healPosX = mapHeight-2;
-    healPosY = 0;
+    plusAttackPosX = randomRange(1, mapHeight/2);
+    plusAttackPosY = randomRange(mapWidth / 2, mapWidth-1);
+    healPosX = randomRange(mapHeight / 2, mapHeight - 2);
+    healPosY = randomRange(0, mapWidth / 2);
+
         map[plusAttackPosX][plusAttackPosY] = plusAttack;
-        healAmount +=lvlCounter/2;
+        healAmount += lvlCounter/2;
         map[healPosX][healPosY] = heal;
     }
 
