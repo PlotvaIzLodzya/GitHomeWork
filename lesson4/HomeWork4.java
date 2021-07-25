@@ -130,10 +130,11 @@ public class HomeWork4 {
         System.out.println();
     }
 
-//Размещаем персонажа
+//Размещаем персонажа, выдаем ему шаги
     public static void createPlayer(){
         playerPosX= 1;
         playerPosY = 0;
+        public static int maxSteps = 40;
         map[playerPosX][playerPosY] = player;
     }
 
@@ -180,7 +181,7 @@ public class HomeWork4 {
         }
     }
 
-//Если встречаем врага - сражение, если бафф, то получаем бафф.
+//Если встречаем врага - сражение затем убираем врага убираем врага с enemyMap, если бафф, то получаем бафф. 
     public static void playerAction(int currentY, int currentX, int nextX, int nextY) {
         if (enemyMap[nextX][nextY] == enemy) {
             fight();
@@ -193,6 +194,7 @@ public class HomeWork4 {
         }
             map[playerPosX][playerPosY] = player;
             map[currentX][currentY] = clearedPath;
+            enemyMap[[currentX][currentY] = clearedPath;
             maxSteps--;
         }
 
