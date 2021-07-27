@@ -13,6 +13,7 @@ public class HomeWork4 {
     public static int playerHP =15;
     public static int playerAttack = 10;
     public static int enemySlain = 0;
+    public static int maxSteps = 40;
 
     public static char clearedPath = 'X';
 
@@ -41,10 +42,15 @@ public class HomeWork4 {
 
     public static char heal = '♡';
     public static int healAmount = 2;
+    public static int healPosX;
+    public static int healPosY;
     public static char plusAttack ='✚';
     public static int plusAttackAmount = 1;
+    public static int plusAttackPosX;
+    public static int plusAttackPosY;
 
     public static int lvlCounter =1;
+
 
     public static char exit = '谷';
     public static int exitPosX;
@@ -54,7 +60,8 @@ public class HomeWork4 {
 
 
     public static void main(String[] args) {
-// Играем пока персонаж не умрет
+        
+// Играем пока персонаж не умрет или у него не закончатся шаги
         while(!isPlayerDead()) {
             System.out.println("Level = " + lvlCounter);
             gameCycle();
@@ -96,6 +103,8 @@ public class HomeWork4 {
     }
 
 
+
+
 //Создаем карту, отрисовываем нижнюю и верхнюю границы
     public static void initMap(){
         map = new char[mapHeight][mapWidth];
@@ -121,10 +130,11 @@ public class HomeWork4 {
         System.out.println();
     }
 
-//Размещаем персонажа
+//Размещаем персонажа, выдаем ему шаги
     public static void createPlayer(){
         playerPosX= 1;
         playerPosY = 0;
+        public static int maxSteps = 40;
         map[playerPosX][playerPosY] = player;
     }
 
@@ -138,7 +148,7 @@ public class HomeWork4 {
     do {
 
         System.out.println(" Up >" + " " + moveUp + " down >" + " " + moveDown + " Left >" + " " + moveLeft + " Right >" + " " + moveRight );
-        System.out.println("Attack = " + playerAttack + ". " + " HP = " + playerHP + ". " + "Slain enemies = " + enemySlain + ". " + "Level = " + lvlCounter);
+        System.out.println("Attack = " + playerAttack + ". " + " HP = " + playerHP + ". " + "Steps left = " + maxSteps + "." + "Slain enemies = " + enemySlain + ". " + "Level = " + lvlCounter);
         System.out.print("Enter your move : ");
         playerDestination = scanner.nextInt();
         switch (playerDestination) {
@@ -161,7 +171,7 @@ public class HomeWork4 {
 
 //Проверка можно не является ли следующий ход препятсвием
     public static boolean isValidNextStep(int currentX, int currentY, int nextX, int nextY){
-        if(map[nextX][nextY] != obstacle){
+        if(nextY >= 0 && nextY < mapWidth  && map[nextX][nextY] != obstacle ){
             return true;
         }else{
             System.out.println("You can't go there");
@@ -171,29 +181,36 @@ public class HomeWork4 {
         }
     }
 
-//Если встречаем врага - сражение, если бафф, то получаем бафф.
-    public static void playerAction(int currentY, int currentX, int nextX, int nextY){
-        if(enemyMap[nextX][nextY] == enemy){
+//Если встречаем врага - сражение затем убираем врага убираем врага с enemyMap, если бафф, то получаем бафф. 
+    public static void playerAction(int currentY, int currentX, int nextX, int nextY) {
+        if (enemyMap[nextX][nextY] == enemy) {
             fight();
-        } else {
-            poweringUp(nextX, nextY);
         }
-        map[playerPosX][playerPosY] = player;
-        map[currentX][currentY] = clearedPath;
-    }
+        if (map[nextX][nextY] == heal) {
+            playerHP += healAmount;
+        }
+        if (map[nextX][nextY] == plusAttack) {
+            playerAttack += plusAttackAmount;
+        }
+            map[playerPosX][playerPosY] = player;
+            map[currentX][currentY] = clearedPath;
+            enemyMap[[currentX][currentY] = clearedPath;
+            maxSteps--;
+        }
+
 
 //Если наступили на сердечко, то получаем лечение, если на "+" то + к атаке
-    public static void poweringUp(int nextX, int nextY){
-       if(map[nextX][nextY] == heal){
-           playerHP+=healAmount;
-        } else if(map[nextX][nextY] == plusAttack)
-           playerAttack+=plusAttackAmount;
-    }
+//    public static void poweringUp(int nextX, int nextY){
+//       if(map[nextX][nextY] == heal){
+//           playerHP+=healAmount;
+//        } else if(map[nextX][nextY] == plusAttack)
+//           playerAttack+=plusAttackAmount;
+//    }
 
 //Сражение - если атака больше атаки противника - побеждаем, получаем +1 к атаке,если атака меньше то получаем урон
     public static void fight(){
         minEnemyAttack = lvlCounter + 5 + playerAttack/4;
-        maxEnemyAttack = lvlCounter + 10 + playerAttack/2;
+        maxEnemyAttack = lvlCounter*2 + 10 + playerAttack/2;
         enemyAttack = randomRange(minEnemyAttack, maxEnemyAttack);
         if(playerAttack>=enemyAttack){
             playerAttack+=1;
@@ -205,7 +222,7 @@ public class HomeWork4 {
     }
 
 
-//создаем врагов
+//Создаем врагов
     public static void createEnemies(){
         System.out.println("There are: " + enemyAmount + " enemies");
         for(int i =0; i < enemyAmount; i++){
@@ -217,21 +234,28 @@ public class HomeWork4 {
         }
     }
 
-//Создаем баффы
+//Создаем баффы, располгаем их в радномное место в левой нижней и правой верхней четверти карты
     public static void createPowerUps(){
-    map[1][mapWidth-1] = plusAttack;
-    healAmount +=lvlCounter/2;
-    map[mapHeight-2][0] = heal;
+    plusAttackPosX = randomRange(1, mapHeight/2);
+    plusAttackPosY = randomRange(mapWidth / 2, mapWidth-1);
+    healPosX = randomRange(mapHeight / 2, mapHeight - 2);
+    healPosY = randomRange(0, mapWidth / 2);
+
+        map[plusAttackPosX][plusAttackPosY] = plusAttack;
+        healAmount += lvlCounter/2;
+        map[healPosX][healPosY] = heal;
     }
+
 
 //Создаем препятсвия
     public static void createObstacles(){
         for(int i = 0; i< obstacleAmount; i++) {
-            obstaclePosX = randomRange(1,mapHeight-2);
-            obstaclePosY = randomRange(0,mapWidth-1);
-            map[obstaclePosX][obstaclePosY] = obstacle;
+                obstaclePosX = randomRange(1, mapHeight - 2);
+                obstaclePosY = randomRange(1, mapWidth - 2);
+                map[obstaclePosX][obstaclePosY] = obstacle;
         }
     }
+
 
 //Создаем выход
     public static void createExit(){
@@ -240,14 +264,15 @@ public class HomeWork4 {
         map[exitPosX][exitPosY] = exit;
     }
 
-//Проверяем мертв ли персонаж
+//Проверяем мертв ли персонаж, если хп опустилось до нуля или ниже или закочились шаги
     public static boolean isPlayerDead(){
-        return playerHP<=0;
+        return playerHP<=0 || maxSteps<=0;
+
     }
 
 //Проверяем дошел ли персонаж до выхода
     public static boolean isExitReached(){
-        return map[mapHeight-2][mapWidth-1] != exit;
+        return map[exitPosX][exitPosY] != exit;
     }
 
 //Рандомим
