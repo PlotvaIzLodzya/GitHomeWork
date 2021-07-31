@@ -12,7 +12,9 @@ public class AnimalsAction {
 
 
 
-        System.out.println("Всего животных: " + Animals.animalCounter + ". Среди них котов " + Cat.catCounter + ", собак " + Dog.dogCounter + ". ");
+        System.out.println("Всего животных: " + Animals.animalCounter +
+                            ". Среди них котов " + Cat.catCounter +
+                            ", собак " + Dog.dogCounter + ". ");
         System.out.println("===Забег животных===");
         animalsRun(allAnimals, 600);
         System.out.println("===Заплыв животных===");
@@ -23,10 +25,6 @@ public class AnimalsAction {
 
     public static void animalsSwim(Animals[] animals, int swimDistance){
         for(int i = 0; i < animals.length; i++){
-            if(animals[i] instanceof Cat){
-                System.out.println("Кот " + animals[i].name +  " утонул(");
-                continue;
-            }
             animals[i].swimDistance(swimDistance);
         }
     }
