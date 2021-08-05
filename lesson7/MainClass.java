@@ -10,8 +10,13 @@ public class MainClass {
         robot1.attackLeft(robot2);
         robot1.attackRight(robot2);
         robot1.speak();
+        
+        //Чиним робота
         robot1.repair(remontDoc.getRepairAmount());
         robot2.repair(remontDoc.getRepairAmount());
+
+        //Второй вариант, чтобы именно в ДОКЕ чинить
+        remontDoc.getRepaired(robot1);
 
 
 
