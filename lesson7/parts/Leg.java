@@ -1,11 +1,6 @@
-package Lesson07.online.test.parts;
+package HomeWorkApp7.parts;
 
-import Lesson07.online.test.Robot;
-
-/**
- * Created by Aleksandr Gladkov [Anticisco]
- * Date: 02.08.2021
- */
+import HomeWorkApp7.Robot;
 
 public class Leg extends RobotPart {
 
