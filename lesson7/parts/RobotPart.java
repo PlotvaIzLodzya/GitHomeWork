@@ -1,13 +1,9 @@
-package Lesson07.online.test.parts;
+package HomeWorkApp7.parts;
 
-import Lesson07.online.test.Robot;
+import HomeWorkApp7.Robot;
+
 
 import java.util.Random;
-
-/**
- * Created by Aleksandr Gladkov [Anticisco]
- * Date: 02.08.2021
- */
 
 public abstract class RobotPart {
 
@@ -17,6 +13,7 @@ public abstract class RobotPart {
     protected String nameParts;
     protected int robotLevel;
     protected Robot robot;
+
 
     public RobotPart(Robot robot, String nameParts) {
         this.robot = robot;
@@ -28,6 +25,11 @@ public abstract class RobotPart {
     public void getDamage(int value) {
         this.structureHealth -= value;
         System.out.println(robot.getName() + " > " + this.nameParts + " get damage " + value + " point(s)");
+    }
+
+    public void getRepaired(int value){
+        this.structureHealth += value;
+        System.out.println(robot.getName() + " > " + this.nameParts + " get repaired for " + value + " point(s)");
     }
 
     public boolean getStatusPart()  {
